@@ -1,48 +1,66 @@
+//https://reqres.in/api-docs/#/default/post_register
+//https://www.postman.com/irynavkm/reqres-in/request/fc0aoi7/register-successful?tab=body
+
 import pactum from 'pactum';
 import { SimpleReporter } from '../simple-reporter';
 import { faker } from '@faker-js/faker';
 import { StatusCodes } from 'http-status-codes';
 
-describe('ServeRest API', () => {
+describe('Reqres Rest API', () => {
+  const email = "eve.holt@reqres.in"
+  const password = "pistol";
+  let data = {};
+  let i_usuario = '';
   let token = '';
-  let idUsuario = '';
+  
+  /*
   let idProduto = '';
   let idProduto2 = '';
   let emailUsuario = '';
-  const descProdutoDuplicado = faker.commerce.productName();
-  const password = faker.string.numeric(9);
+  const descProdutoDuplicado = faker.commerce.productName(); */
   const p = pactum;
   const rep = SimpleReporter;
-  const baseUrl = 'https://serverest.dev';
+  const baseUrl = 'https://reqres.in/api';
 
   p.request.setDefaultTimeout(90000);
 
-  beforeAll(async () => {
+ /*  beforeAll(async () => {
     p.reporter.add(rep);
 
-    idUsuario = await p
+    token = await p
       .spec()
-      .post(`${baseUrl}/usuarios`)
-      .withHeaders('monitor', false)
+      .post(`${baseUrl}/register`)
+      .withHeaders('x-api-key', 'reqres-free-v1')
       .withJson({
-        nome: faker.internet.username(),
-        email: faker.internet.email(),
-        password: password,
-        administrador: 'true'
+        email: email,
+        password: password
       })
-      .expectStatus(StatusCodes.CREATED)
-      .expectBodyContains('Cadastro realizado com sucesso')
-      .returns('_id');
-
-    emailUsuario = await p
-      .spec()
-      .get(`${baseUrl}/usuarios/${idUsuario}`)
-      .withHeaders('monitor', false)
       .expectStatus(StatusCodes.OK)
-      .returns('email');
+      .expectJsonSchema({
+        type: 'object'
+      })
+      .returns('token');
+  }); */
+
+  it('Registro Reqres', async () => {
+    //p.reporter.add(rep);
+
+    token = await p
+      .spec()
+      .post(`${baseUrl}/register`)
+      .withHeaders('x-api-key', 'reqres-free-v1')
+      .withJson({
+        email: email,
+        password: password
+      })
+      .expectStatus(StatusCodes.OK)
+      .expectJsonSchema({
+        type: 'object'
+      })
+      .returns('token');
   });
 
-  beforeEach(async () => {
+  /* beforeEach(async () => {
     token = await p
       .spec()
       .post(`${baseUrl}/login`)
@@ -57,9 +75,9 @@ describe('ServeRest API', () => {
         type: 'object'
       })
       .returns('authorization');
-  });
+  }); */
 
-  describe('Validações login', () => {
+  /* describe('Validações login', () => {
     it('login inválido', async () => {
       await p
         .spec()
@@ -246,7 +264,7 @@ describe('ServeRest API', () => {
         .expectStatus(StatusCodes.OK)
         .expectBodyContains('Registro excluído com sucesso');
     });
-  });
+  }); */
 
   afterAll(() => p.reporter.end());
 });
