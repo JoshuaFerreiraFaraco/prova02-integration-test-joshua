@@ -9,43 +9,20 @@ import { StatusCodes } from 'http-status-codes';
 describe('Reqres Rest API', () => {
   const email = "eve.holt@reqres.in"
   const password = "pistol";
-  let data = {};
-  let i_usuario = '';
-  let token = '';
+  const page = 1;
+  const delay = 0;
+  const i_usuario = 1;
+  let id = 0;
   
-  /*
-  let idProduto = '';
-  let idProduto2 = '';
-  let emailUsuario = '';
-  const descProdutoDuplicado = faker.commerce.productName(); */
   const p = pactum;
   const rep = SimpleReporter;
   const baseUrl = 'https://reqres.in/api';
 
   p.request.setDefaultTimeout(90000);
-
- /*  beforeAll(async () => {
-    p.reporter.add(rep);
-
-    token = await p
-      .spec()
-      .post(`${baseUrl}/register`)
-      .withHeaders('x-api-key', 'reqres-free-v1')
-      .withJson({
-        email: email,
-        password: password
-      })
-      .expectStatus(StatusCodes.OK)
-      .expectJsonSchema({
-        type: 'object'
-      })
-      .returns('token');
-  }); */
+  p.reporter.add(rep);
 
   it('Registro Reqres', async () => {
-    //p.reporter.add(rep);
-
-    token = await p
+    await p
       .spec()
       .post(`${baseUrl}/register`)
       .withHeaders('x-api-key', 'reqres-free-v1')
@@ -60,211 +37,124 @@ describe('Reqres Rest API', () => {
       .returns('token');
   });
 
-  /* beforeEach(async () => {
-    token = await p
+  it('Apenas Usuarios Definidos podem registrar Reqres', async () => {
+    await p
       .spec()
-      .post(`${baseUrl}/login`)
-      .withHeaders('monitor', false)
+      .post(`${baseUrl}/register`)
+      .withHeaders('x-api-key', 'reqres-free-v1')
       .withJson({
-        email: `${emailUsuario}`,
+        email: 'joshua@gmail.com',
         password: password
       })
-      .expectStatus(StatusCodes.OK)
-      .expectBodyContains('Login realizado com sucesso')
+      .expectStatus(StatusCodes.BAD_REQUEST)
       .expectJsonSchema({
         type: 'object'
       })
-      .returns('authorization');
-  }); */
-
-  /* describe('Validações login', () => {
-    it('login inválido', async () => {
-      await p
-        .spec()
-        .post(`${baseUrl}/login`)
-        .withHeaders('monitor', false)
-        .withJson({
-          email: faker.internet.email(),
-          password: faker.string.numeric(5)
-        })
-        .expectStatus(StatusCodes.UNAUTHORIZED)
-        .expectBodyContains('Email e/ou senha inválidos');
-    });
+      .expectBodyContains('Note: Only defined users succeed registration');
   });
 
-  describe('Produtos', () => {
-    it('Cadastro um novo produto', async () => {
-      idProduto = await p
-        .spec()
-        .post(`${baseUrl}/produtos`)
-        .withHeaders('Authorization', token)
-        .withHeaders('monitor', false)
-        .withJson({
-          nome: faker.commerce.productName(),
-          preco: 500,
-          descricao: faker.commerce.productDescription(),
-          quantidade: 10
-        })
-        .expectStatus(StatusCodes.CREATED)
-        .expectBodyContains('Cadastro realizado com sucesso')
-        .expectJsonSchema({
-          type: 'object',
-          properties: {
-            message: {
-              type: 'string'
-            },
-            _id: {
-              type: 'string'
-            }
-          },
-          required: ['message', '_id']
-        })
-        .returns('_id');
-    });
-
-    it('Cadastro um novo produto', async () => {
-      idProduto2 = await p
-        .spec()
-        .post(`${baseUrl}/produtos`)
-        .withHeaders('Authorization', token)
-        .withHeaders('monitor', false)
-        .withJson({
-          nome: faker.commerce.productName(),
-          preco: 1600,
-          descricao: faker.commerce.productDescription(),
-          quantidade: 30
-        })
-        .expectStatus(StatusCodes.CREATED)
-        .expectBodyContains('Cadastro realizado com sucesso')
-        .expectJsonSchema({
-          type: 'object',
-          properties: {
-            message: {
-              type: 'string'
-            },
-            _id: {
-              type: 'string'
-            }
-          },
-          required: ['message', '_id']
-        })
-        .returns('_id');
-    });
-
-    it('Busca o novo produto cadastrado', async () => {
-      await p
-        .spec()
-        .get(`${baseUrl}/produtos/${idProduto}`)
-        .withHeaders('Authorization', token)
-        .withHeaders('monitor', false)
-        .expectStatus(StatusCodes.OK);
-    });
-
-    it('produto sem token válido', async () => {
-      await p
-        .spec()
-        .post(`${baseUrl}/produtos`)
-        .withHeaders('monitor', false)
-        .withJson({
-          nome: faker.commerce.productName(),
-          preco: 500,
-          descricao: faker.commerce.productDescription(),
-          quantidade: 10
-        })
-        .expectStatus(StatusCodes.UNAUTHORIZED)
-        .expectBodyContains(
-          'Token de acesso ausente, inválido, expirado ou usuário do token não existe mais'
-        );
-    });
-
-    it('Validar produtos com descrição duplicada', async () => {
-      await p
-        .spec()
-        .post(`${baseUrl}/produtos`)
-        .withHeaders('Authorization', token)
-        .withHeaders('monitor', false)
-        .withJson({
-          nome: descProdutoDuplicado,
-          preco: 500,
-          descricao: faker.commerce.productDescription(),
-          quantidade: 10
-        })
-        .expectStatus(StatusCodes.CREATED)
-        .expectBodyContains('Cadastro realizado com sucesso')
-        .returns('_id');
-
-      await p
-        .spec()
-        .post(`${baseUrl}/produtos`)
-        .withHeaders('Authorization', token)
-        .withHeaders('monitor', false)
-        .withJson({
-          nome: descProdutoDuplicado,
-          preco: 500,
-          descricao: faker.commerce.productDescription(),
-          quantidade: 10
-        })
-        .expectStatus(StatusCodes.BAD_REQUEST)
-        .expectBodyContains('Já existe produto com esse nome');
-    });
+  it('Login Reqres', async () => {
+    await p
+      .spec()
+      .post(`${baseUrl}/login`)
+      .withHeaders('x-api-key', 'reqres-free-v1')
+      .withJson({
+        email: email,
+        password: password
+      })
+      .expectStatus(StatusCodes.OK)
+      .expectJsonSchema({
+        type: 'object'
+      });
   });
 
-  describe('Carrinhos', () => {
-    it('Adiciona um novo carrinho', async () => {
-      await p
-        .spec()
-        .post(`${baseUrl}/carrinhos`)
-        .withHeaders('Authorization', token)
-        .withHeaders('monitor', false)
-        .withJson({
-          produtos: [
-            {
-              idProduto: `${idProduto}`,
-              quantidade: 10
-            },
-            {
-              idProduto: `${idProduto2}`,
-              quantidade: 12
-            }
-          ]
-        })
-        .expectStatus(StatusCodes.CREATED)
-        .expectBodyContains('Cadastro realizado com sucesso')
-        .expectJsonSchema({
-          $schema: 'http://json-schema.org/draft-04/schema#',
-          type: 'object',
-          properties: {
-            message: {
-              type: 'string'
-            },
-            _id: {
-              type: 'string'
-            }
-          },
-          required: ['message', '_id']
-        });
-    });
+  it('Usuario nao encontrado Login Reqres', async () => {
+    await p
+      .spec()
+      .post(`${baseUrl}/login`)
+      .withHeaders('x-api-key', 'reqres-free-v1')
+      .withJson({
+        email: 'joshua@gmail.com',
+        password: password
+      })
+      .expectStatus(StatusCodes.BAD_REQUEST)
+      .expectJsonSchema({
+        type: 'object'
+      })
+      .expectBodyContains('user not found');
+  });
 
-    it('carrinho inválido', async () => {
-      await p
-        .spec()
-        .get(`${baseUrl}/carrinhos/qbMtntef8iTOwWfz`)
-        .withHeaders('Authorization', token)
-        .withHeaders('monitor', false)
-        .expectStatus(StatusCodes.BAD_REQUEST)
-        .expectBodyContains('Carrinho não encontrado');
-    });
+  it('Logout Reqres', async () => {
+    await p
+      .spec()
+      .post(`${baseUrl}/Logout`)
+      .withHeaders('x-api-key', 'reqres-free-v1')
+      .expectStatus(StatusCodes.OK);
+  });
 
-    it('Conclui a compra e exclui o carrinho', async () => {
-      await p
-        .spec()
-        .delete(`${baseUrl}/carrinhos/concluir-compra`)
-        .withHeaders('Authorization', token)
-        .withHeaders('monitor', false)
-        .expectStatus(StatusCodes.OK)
-        .expectBodyContains('Registro excluído com sucesso');
-    });
-  }); */
+  it('Listar Usuarios Reqres', async () => {
+    await p
+      .spec()
+      .get(`${baseUrl}/users?page=${page}&delay=${delay}`)
+      .withHeaders('x-api-key', 'reqres-free-v1')
+      .expectStatus(StatusCodes.OK)
+      .expectJsonSchema({
+        type: 'object'
+      });
+  });
+
+  it('Listar Usuario Unico Reqres', async () => {
+    await p
+      .spec()
+      .get(`${baseUrl}/users/${i_usuario}`)
+      .withHeaders('x-api-key', 'reqres-free-v1')
+      .expectStatus(StatusCodes.OK)
+      .expectJsonSchema({
+        type: 'object'
+      });
+  });
+
+  it('Listar Usuario Inexistente Reqres', async () => {
+    await p
+      .spec()
+      .get(`${baseUrl}/users/100`)
+      .withHeaders('x-api-key', 'reqres-free-v1')
+      .expectStatus(StatusCodes.NOT_FOUND)
+      .expectJsonSchema({
+        type: 'object'
+      });
+  });
+
+  it('Criar Usuario Reqres', async () => {
+    id = await p
+      .spec()
+      .post(`${baseUrl}/users`)
+      .withHeaders('x-api-key', 'reqres-free-v1')
+      .withJson({
+        name: faker.internet.displayName,
+        job: faker.person.jobArea
+      })
+      .expectStatus(StatusCodes.CREATED)
+      .expectJsonSchema({
+        type: 'object'
+      })
+      .returns('id');
+  });
+
+  it('Atualizar Usuario Reqres', async () => {
+    await p
+      .spec()
+      .put(`${baseUrl}/users/${id}`)
+      .withHeaders('x-api-key', 'reqres-free-v1')
+      .withJson({
+        name: faker.internet.displayName,
+        job: faker.person.jobArea
+      })
+      .expectStatus(StatusCodes.OK)
+      .expectJsonSchema({
+        type: 'object'
+      }).inspect();
+  });
 
   afterAll(() => p.reporter.end());
 });
