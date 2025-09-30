@@ -153,7 +153,7 @@ describe('Reqres Rest API', () => {
       .expectStatus(StatusCodes.OK)
       .expectJsonSchema({
         type: 'object'
-      }).inspect();
+      });
   });
 
   afterAll(() => p.reporter.end());
